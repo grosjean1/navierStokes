@@ -1,0 +1,20 @@
+mesh Th(sTh);
+fespace Vh(Th,P2);
+fespace Ph(Th,P1);
+Vh uf1,uf2;
+Ph pf;
+{
+	ifstream f("u1u2p1.txt");
+	for(int k=0; k<Th.nt;++k)
+	{ 
+	for(int i=0; i<Vh.ndofK; ++i)
+	f >> uf1[][Vh(k,i)];
+	for(int i=0; i<Vh.ndofK; ++i)
+	f >> uf2[][Vh(k,i)];
+	for(int i=0; i<Ph.ndofK; ++i)
+	f >> pf[][Ph(k,i)];
+}
+}
+
+
+plot([uf1,uf2],pf,fill=0,cmm="uf",wait=1);
