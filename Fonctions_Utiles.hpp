@@ -1,5 +1,5 @@
 #include <cassert>
-#include "mesh_gmsh.hpp"
+#include "mesh.hpp"
 #include <fstream>
 #include <iostream>
 #include <math.h> 
@@ -45,7 +45,7 @@ double PartialPhi(int i,int ind,R2 P){
 void BuildMatNS(const Mesh2d &Th, double alpha, double nu, double A[15][15],int cpt,int NS) //A mat de taille [15][15]
 {
 	//pts et poids d'integration
-/*	double ptint1=(6-sqrt(15))/21;
+	double ptint1=(6-sqrt(15))/21;
 	double ptint2=(9-sqrt(15)*2)/21;
 	double ptint3=(6+sqrt(15))/21;
 	double ptint4=(9+sqrt(15)*2)/21;
@@ -54,23 +54,11 @@ void BuildMatNS(const Mesh2d &Th, double alpha, double nu, double A[15][15],int 
 	R2 p1(1./3,1./3),p2(ptint1,ptint1),p3(ptint1,ptint4),p4(ptint4,ptint1),p5(ptint3,ptint3),p6(ptint3,ptint2),p7(ptint2,ptint3);
 	R2 PtsRef[7]={p1,p2,p3,p4,p5,p6,p7};//Points d'intégration
 
-	double Poids[7]={0.225,poids1,poids1,poids1,poids2,poids2,poids2};*/
-	R2 p1(0.5,0.5),p2(0,0.5),p3(0.5,0);
-	R2 PtsRef[3]={p1,p2,p3};
-	double Poids[3]={1./3,1./3,1./3};
+	double Poids[7]={0.225,poids1,poids1,poids1,poids2,poids2,poids2};
+//	R2 p1(0.5,0.5),p2(0,0.5),p3(0.5,0);
+//	R2 PtsRef[3]={p1,p2,p3};
+//	double Poids[3]={1./3,1./3,1./3};
   Triangle K = Th[cpt]; // triangle cpt du maillage
-/*	if(cpt==2){
-		for(int i=0;i<3;i++){
-				cout<<K.v[i].getX()<<" "<<K.v[i].getY()<<endl;
-				cout<<K.mil[i].getX()<<" "<<K.mil[i].getY()<<endl;
-		}
-	}	*/
-	/*double s=0;
-	for(int i=0;i<3;i++){
-		//s+=(1./3)*0.5*(pow(PartialPhi(3,0,PtsRef[i]),2)+pow(PartialPhi(3,1,PtsRef[i]),2));
-			s+=(1./3)*0.5*(PartialPhi(1,0,PtsRef[i])*PartialPhi(5,0,PtsRef[i])+PartialPhi(1,1,PtsRef[i])*PartialPhi(5,1,PtsRef[i]));
-	}*/
-	//cout<<"0:"<<s<<endl;
   // calcul de la matrice Ak
   double areak = K.area;
 	double coeff=nu/(4*areak);
@@ -92,7 +80,7 @@ void BuildMatNS(const Mesh2d &Th, double alpha, double nu, double A[15][15],int 
 	if(NS==1){ //NS
 		for(int i=0;i<6;i++){ //C
 			for(int j=0;j<6;j++){
-				for(int k=0;k<3;k++){//les pts d'integ
+				for(int k=0;k<7;k++){//les pts d'integ
 					A[i][j]+=coeff1*Poids[k]*Phi(j,PtsRef[k])*Phi(i,PtsRef[k])+coeff*Poids[k]*(acoef*PartialPhi(i,0,PtsRef[k])*PartialPhi(j,0,PtsRef[k])+bcoef*(PartialPhi(i,1,PtsRef[k])*PartialPhi(j,0,PtsRef[k])+PartialPhi(i,0,PtsRef[k])*PartialPhi(j,1,PtsRef[k]))+ccoef*PartialPhi(i,1,PtsRef[k])*PartialPhi(j,1,PtsRef[k]));
 				}
 				A[i+6][j+6]=A[i][j];
@@ -102,7 +90,7 @@ void BuildMatNS(const Mesh2d &Th, double alpha, double nu, double A[15][15],int 
 	else{ //Cas stationnaire
 		for(int i=0;i<6;i++){ //C
 			for(int j=0;j<6;j++){
-				for(int k=0;k<3;k++){//les pts d'integ
+				for(int k=0;k<7;k++){//les pts d'integ
 					A[i][j]+=coeff*Poids[k]*(acoef*PartialPhi(i,0,PtsRef[k])*PartialPhi(j,0,PtsRef[k])+bcoef*(PartialPhi(i,1,PtsRef[k])*PartialPhi(j,0,PtsRef[k])+PartialPhi(i,0,PtsRef[k])*PartialPhi(j,1,PtsRef[k]))+ccoef*PartialPhi(i,1,PtsRef[k])*PartialPhi(j,1,PtsRef[k]));
 								
 				}
@@ -112,7 +100,7 @@ void BuildMatNS(const Mesh2d &Th, double alpha, double nu, double A[15][15],int 
 	}
 	for(int i=0;i<6;i++){
 		for(int j=12;j<15;j++){ //B1
-			for(int k=0;k<3;k++){
+			for(int k=0;k<7;k++){
 				A[i][j]+=Poids[k]*((J[0][0]*PartialPhi(i,0,PtsRef[k])+J[0][1]*PartialPhi(i,1,PtsRef[k]))*lambda(j-12,PtsRef[k]));
 			}
 			A[i][j]=-(1./2)*A[i][j];
@@ -121,7 +109,7 @@ void BuildMatNS(const Mesh2d &Th, double alpha, double nu, double A[15][15],int 
 	}
 	for(int i=6;i<12;i++){
 		for(int j=12;j<15;j++){ //B2
-			for(int k=0;k<3;k++){
+			for(int k=0;k<7;k++){
 				A[i][j]+=Poids[k]*(J[1][0]*PartialPhi(i-6,0,PtsRef[k])+J[1][1]*PartialPhi(i-6,1,PtsRef[k]))*lambda(j-12,PtsRef[k]);
 			}
 			A[i][j]=-(1./2)*A[i][j];
@@ -165,8 +153,10 @@ double vitesseInterpolee(vector<double> un, R2 PtInterp){
 // fonction CL
 double g(Vertex P, int label)
 {
+	double x=P.getX();
+	double y=P.getY();
   if(label == 10)
-      return 4*(-4*P.getY()*P.getY()+6*P.getY()-2);
+      return (1-y)*(y-0.5)*16;
   else 
 		return 0;
 }

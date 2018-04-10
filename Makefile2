@@ -8,8 +8,8 @@ CXXOPT =  -O3
 CXXFLAGS =  $(CXXOPT) -Wall -std=c++11 $(UMFPACKINC)
 CXXFLAGS += -MMD -MP
 PROGS =  NS
-OBJS  = mesh_gmsh.o mainNS.o
-SRC = mesh_gmsh.cpp mainNS.cpp
+OBJS  = mesh.o mainNS.o
+SRC = mesh.cpp mainNS.cpp
 all: $(PROGS)
 
 -include $(SRC:%.cpp=%.d)
