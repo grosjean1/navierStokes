@@ -1,0 +1,40 @@
+mesh Th("marche.msh");
+//savemesh(Th,"marche.msh");
+plot(Th , wait = true, cmm= "solution");
+
+fespace Xh(Th,P2);
+fespace Mh(Th,P1);
+
+Xh u1,v1;
+Xh u2,v2;
+Mh p,q;
+
+real dt=0.1;
+real alpha =1./dt;
+real nu=0.0025;
+
+Xh u1p,u2p,u1plot,u2plot;
+problem steadystokes([u1,u2,p], [v1,v2,q],solver=UMFPACK) =
+int2d(Th)(nu*(dx(u1)*dx(v1)+dy(u1)*dy(v1)+dx(u2)*dx(v2)+dy(u2)*dy(v2))-p*q*(0.000001)-p*dx(v1)-p*dy(v2)- dx(u1)*q - dy(u2)*q)+on(20,40,u1=0,u2=0)+on(10,u1=(1-y)*(y-0.5)*16,u2=0);
+steadystokes;
+u1p=u1;
+u2p=u2;
+
+plot(coef=0.2,wait=true,cmm="[u1,u2] ",value=1,[u1p,u2p],ps="solfinal.ps");
+
+problem NS(u1,u2,p,v1,v2,q,solver=UMFPACK)=int2d(Th)(alpha*(u1*v1+u2*v2)+nu*(dx(u1)*dx(v1)+dy(u1)*dy(v1)+dx(u2)*dx(v2)+dy(u2)*dy(v2))-p*(dx(v1)+dy(v2))-(dx(u1)+dy(u2))*q-0.00000001*q*p)+on(20,40,u1=0,u2=0)+on(10,u1=(1-y)*(y-0.5)*16,u2=0)-int2d(Th)(alpha*convect([u1p,u2p],-dt,u1p)*v1-alpha*convect([u1p,u2p],-dt,u2p)*v2);
+
+for(int i=0;i<80;i++){
+NS;
+
+u1p=u1;
+u2p=u2;	
+
+if(i%2==0){
+	u1plot=u1;
+	u2plot=u2;
+	plot(coef=0.2,wait=true,cmm="[u1,u2] ",value=1,[u1plot,u2plot],ps="solfinal.ps");
+}
+//plot(coef=0.2,wait=true,cmm="p",value=1,fill=true,p);
+}
+

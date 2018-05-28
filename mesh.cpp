@@ -5,8 +5,6 @@
 
 using namespace std;
 
-//int static num=0;
-
 Mesh2d::Mesh2d(const char * filename)
 {
   std::ifstream  f(filename); 
@@ -20,7 +18,7 @@ Mesh2d::Mesh2d(const char * filename)
   { 
 		ind=i;
 		for(int l=0;l<2;l++){
-		f>>coord[l];
+			f>>coord[l];
 		}
 		f>>inu;
 		Vertex Vt;
@@ -37,6 +35,9 @@ Mesh2d::Mesh2d(const char * filename)
 		f>>inu;
 		Triangle Trg;
 		double areak=Trg.build(v,I1,-1);
+		v[I1[0]-1].ajoutTri(Trg.numTri);
+		v[I1[1]-1].ajoutTri(Trg.numTri);
+		v[I1[2]-1].ajoutTri(Trg.numTri);
 		area.push_back(areak);
 		t.push_back(Trg);
 	}
@@ -82,14 +83,11 @@ int Mesh2d::PointsMil(){//num des pts milieux
 			ME[key]=val;
 			v[s1].setLab(val);
 			v[s2].setLab(val);
-			//cout<<"s1 "<<key.first<<" s2 "<<key.second<<" val "<<val<<endl;
 	}
 
-	//cout<<"edges"<<nbe<<endl;
 	int n=nv;
 	bool cree=false;
  	map< pair<int,int>, pair<int,int>> M;
-	bool VoisinExiste=false;
 	for(int k=0;k<nbt;k++){
 		for(int a=0; a< 3; ++a){// Arete oppose au sommet
 			cree=false;
@@ -102,7 +100,6 @@ int Mesh2d::PointsMil(){//num des pts milieux
 			double y0=v[s1].getY();
 			double y1=v[s2].getY();
 			pair<int,int> key(s1,s2);
-			
 			Vertex milieu;
 			milieu.setX((x0+x1)/2);
 			milieu.setY((y0+y1)/2);
@@ -111,29 +108,12 @@ int Mesh2d::PointsMil(){//num des pts milieux
 				M[key].second=k;
 				cree=true;
 			}
-				for(map<pair<int,int>,pair<int,int>>::iterator it=M.begin();it!=M.end();++it){			
-					if(it->first.first==s1||it->first.first==s2||it->first.second==s1||it->first.second==s2){
-					//	cout<<"k "<<k<<" s1 "<<s1<<" s2 "<<s2<<" "<<it->first.first<<" "<<it->first.second<<" "<<it->second.second<<endl;
-						if(it->second.second!=k){
-							this->voisins[k].push_back(it->second.second);
-							this->voisins[it->second.second].push_back(k);
-						}
-					}
-				}
-				std::vector<int>::iterator it1;
-				for(int k=0;k<nbt;k++){
-					sort(voisins[k].begin(),voisins[k].end());
-				  it1 = std::unique (voisins[k].begin(), voisins[k].end()); 
-  				voisins[k].resize( std::distance(voisins[k].begin(),it1) );
-				}
-			/*else{
-				//cout<<m<<" "<<k<<" "<<M[key]<<" "<<s1<<" "<<s2<<endl;
-				this->voisins[k].push_back(M[key].second);
-				this->voisins[M[key].second].push_back(k);
-			}*/
 			milieu.setNum(M[key].first);
 			t[k].mil[a]=milieu;
 			if(ME.find(key)!=ME.end()){//si on trouve la clé correspond au bord du domaine on ajoute le label
+				if(ME[key]==30){//bord sortie pour l'interpolation dans la methode des caracteristiques
+					triangleSortie.push_back(k);
+				}
 				t[k].v[(a+1)%3].setLab(ME[key]);
 				t[k].v[(a+2)%3].setLab(ME[key]);
 				t[k].mil[a].setLab(ME[key]);
@@ -142,9 +122,29 @@ int Mesh2d::PointsMil(){//num des pts milieux
 			if(cree==true)//Si le point milieu vient d être créer, on l'ajoute au vecteur des points
 				this->v.push_back(milieu);
 		}
+		for(int a=0;a<3;a++){
+			int num=t[k].v[a].getNum();
+			vector<int> tri=v[num].getTri();
+			for(unsigned int i=0;i<tri.size();i++){
+				if(tri[i]!=k)
+					voisins[k].push_back(tri[i]);
+			}
+		}
 	}
-
-	//cout<<"taille des sommets!" << v.size()<<endl;
+	std::vector<int>::iterator it1;
+	for(int k=0;k<nbt;k++){
+		sort(voisins[k].begin(),voisins[k].end());
+		it1 = std::unique (voisins[k].begin(), voisins[k].end()); 
+  	voisins[k].resize( std::distance(voisins[k].begin(),it1) );
+	}
+	/*for(int k=0;k<nbt;k++){
+		cout<<"triangle  "<<k<<": ";
+		for(int i=0;i<voisins[k].size();i++){
+			cout<<voisins[k][i]<<" ";
+		}
+		cout<<endl;
+	}*/
+	//cout<<"nb de triangles au bord"<<triangleSortie.size()<<endl;
 	return n;
 }
 

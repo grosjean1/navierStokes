@@ -1,0 +1,39 @@
+//#include <fstream>
+
+mesh Th =readmesh("projet.msh");
+//mesh Th = readmesh("carre.msh");
+fespace Vh(Th,P2);
+fespace Ph(Th,P1);
+Vh uf1,uf2,uf01,uf02,uf11,uf12,uf21,uf22,uf31,uf32,uf41,uf42;
+Ph pf,pf0,pf1,pf2,pf3,pf4;
+{
+	ifstream f("solution.txt");
+	for(int k=0; k<Th.nt;++k)
+	{ 
+	for(int i=0; i<Vh.ndofK; ++i)
+	f >> uf1[][Vh(k,i)];
+	for(int i=0; i<Vh.ndofK; ++i)
+	f >> uf2[][Vh(k,i)];
+	for(int i=0; i<Ph.ndofK; ++i)
+	f >> pf[][Ph(k,i)];
+	}
+}
+
+for(int ks=0;ks<40;ks++)
+{
+	int k2=ks*2;
+	string s = "sol_"+k2+".txt";
+	ifstream f(s);
+	//ifstream f("sol_0.txt");
+	for(int k=0; k<Th.nt;++k)
+	{ 
+	for(int i=0; i<Vh.ndofK; ++i)
+	f >> uf01[][Vh(k,i)];
+	for(int i=0; i<Vh.ndofK; ++i)
+	f >> uf02[][Vh(k,i)];
+	for(int i=0; i<Ph.ndofK; ++i)
+	f >> pf0[][Ph(k,i)];
+	}
+	plot([uf01,uf02],value=1,fill=0,cmm="uf0",ps="Image_"+ks+".ps",wait=1);	
+}
+//plot(pf,value=1,fill=1,wait=1,ps="stokes_pression.ps");

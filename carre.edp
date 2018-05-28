@@ -1,0 +1,9 @@
+//int[int] ll=[20,30,40,10];
+//mesh Th=square(10,10,label=ll);
+//Th=adaptmesh(Th,0.1,IsMetric=1);
+//plot(Th);
+
+load "gmsh"
+mesh Th =gmshload("projet.msh");
+//mesh Th=readmesh("projet.msh");
+savemesh(Th,"projet.msh");

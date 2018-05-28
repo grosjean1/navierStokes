@@ -1,0 +1,8 @@
+/home/elise/Documents/M2/classes/SuiteSparse/include/metis.h
+/home/elise/Documents/M2/classes/SuiteSparse/lib/libmetis.so
+/home/elise/Documents/M2/classes/SuiteSparse/bin/gpmetis
+/home/elise/Documents/M2/classes/SuiteSparse/bin/ndmetis
+/home/elise/Documents/M2/classes/SuiteSparse/bin/mpmetis
+/home/elise/Documents/M2/classes/SuiteSparse/bin/m2gmetis
+/home/elise/Documents/M2/classes/SuiteSparse/bin/graphchk
+/home/elise/Documents/M2/classes/SuiteSparse/bin/cmpfillin
