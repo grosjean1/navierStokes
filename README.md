@@ -1,3 +1,8 @@
+Implémentation en C des Elements Finis avec Fe space Taylor-Hood(P2-P1)
+Backward-Facing step 2D, 
+
+
+
 # dans /gmsh:
 maillages .geo
 
